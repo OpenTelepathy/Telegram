@@ -1,0 +1,6 @@
+---
+- name: Install Telegram
+  hosts: all, localhost
+  become: yes  # This allows Ansible to execute commands with sudo
+  roles:
+  - Telegram

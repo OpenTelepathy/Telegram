@@ -1,0 +1,34 @@
+- name: Check if Telegram is already installed
+  stat:
+    path: "/usr/local/bin/Telegram"
+  register: telegram_installed
+
+- name: Download Telegram tarball
+  get_url:
+    url: "https://td.telegram.org/tlinux/tsetup.4.15.2.tar.xz"
+    dest: "/tmp/tsetup.4.15.2.tar.xz"
+  when: telegram_installed.stat.exists == false
+
+- name: Extract Telegram tarball
+  ansible.builtin.unarchive:
+    src: "/tmp/tsetup.4.15.2.tar.xz"
+    dest: "/tmp/tsetup"
+    remote_src: yes
+  when: telegram_installed.stat.exists == false
+
+- name: Move Telegram executable to /usr/local/bin/
+  ansible.builtin.command:
+    cmd: "mv /tmp/tsetup.4.15.2/Telegram/Telegram /usr/local/bin/Telegram"
+  when: telegram_installed.stat.exists == false
+
+- name: Make Telegram executable
+  ansible.builtin.file:
+    path: "/usr/local/bin/Telegram"
+    mode: "u+x"
+  when: telegram_installed.stat.exists == false
+
+- name: Create Telegram .desktop file
+  template:
+    src: "Telegram.desktop.j2"
+    dest: "/usr/share/applications/Telegram.desktop"
+  when: telegram_installed.stat.exists == false
